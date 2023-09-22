@@ -1,4 +1,4 @@
-﻿using ConnectionDb;
+﻿using ConnectionDb.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace ConnectionDB
+namespace ConnectionDb.Models
 {
     public class Employees
     {
@@ -288,8 +288,8 @@ namespace ConnectionDB
             var country3 = new Country();
             var region3 = new Region();
             var location3 = new Location();
-            var department3= new Department();
-            var employee3= new Employees();
+            var department3 = new Department();
+            var employee3 = new Employees();
 
 
             var getCountry = country3.GetAll();

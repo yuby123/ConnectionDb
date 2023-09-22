@@ -5,31 +5,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConnectionDb
+namespace ConnectionDb.Models
 {
-    public class JobHistory
+    internal class Department
     {
-        
-        public int EmployeeId { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public int DepartmentId { get; set; }
-        public int JobId { get; set; }
 
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int ManagerId { get; set; }
+        public int LocationId { get; set; }
         public override string ToString()
         {
-            return $"{EmployeeId} - {StartDate} - {EndDate} - {DepartmentId} - {JobId}";
+            return $"{Id} - {Name} - {ManagerId} - {LocationId}";
         }
 
-        public List<JobHistory> GetAll()
+        public List<Department> GetAll()
         {
-            var regions = new List<JobHistory>();
+            var regions = new List<Department>();
 
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
+
             command.Connection = connection;
-            command.CommandText = "SELECT * FROM tbl_job_history";
+            command.CommandText = "SELECT * FROM tbl_departments";
 
             try
             {
@@ -41,14 +40,12 @@ namespace ConnectionDb
                 {
                     while (reader.Read())
                     {
-                        regions.Add(new JobHistory
+                        regions.Add(new Department
                         {
-                            EmployeeId = reader.GetInt32(0),
-                            StartDate = reader.GetDateTime(1),
-                            EndDate = reader.GetDateTime(2),
-                            DepartmentId = reader.GetInt32(3),
-                            JobId = reader.GetInt32(4)
-
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            ManagerId = reader.GetInt32(2),
+                            LocationId = reader.GetInt32(3)
                         });
                     }
                     reader.Close();
@@ -59,28 +56,29 @@ namespace ConnectionDb
                 reader.Close();
                 connection.Close();
 
-                return new List<JobHistory>();
+                return new List<Department>();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
 
-            return new List<JobHistory>();
+            return new List<Department>();
         }
 
         // GET BY ID: Region
-        public JobHistory GetById(int employeeId)
+        public Department GetById(int id)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
+
             command.Connection = connection;
-            command.CommandText = "SELECT * FROM tbl_job_history WHERE id =@id";
+            command.CommandText = "SELECT * FROM tbl_departments WHERE id =@id";
 
             try
             {
-                command.Parameters.Add(new SqlParameter("@id", employeeId));
+                command.Parameters.Add(new SqlParameter("@id", id));
 
                 connection.Open();
 
@@ -90,53 +88,51 @@ namespace ConnectionDb
                 {
                     while (reader.Read())
                     {
-                        return new JobHistory()
+                        return new Department()
                         {
-                            EmployeeId = reader.GetInt32(0),
-                            StartDate = reader.GetDateTime(1),
-                            EndDate = reader.GetDateTime(2),
-                            DepartmentId = reader.GetInt32(3),
-                            JobId = reader.GetInt32(4)
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            ManagerId = reader.GetInt32(2),
+                            LocationId = reader.GetInt32(3)
                         };
 
                     }
                     reader.Close();
                     connection.Close();
 
-                    return new JobHistory();
+                    return new Department();
 
                 }
                 reader.Close();
                 connection.Close();
 
-                return new JobHistory();
+                return new Department();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
-            return new JobHistory();
+            return new Department();
 
 
         }
 
         // INSERT: Region
-        public string Insert(int employeeId, DateTime startDate, DateTime endDate, int departmentId, int jobId)
+        public string Insert(int id, string name, int managerId, int locationId)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
 
             command.Connection = connection;
-            command.CommandText = "INSERT INTO tbl_job_history VALUES (@employee_id, @start_date, @end_date, @department_id, @job_id);";
+            command.CommandText = "INSERT INTO tbl_departments VALUES (@id, @name, @managerId, @locationId);";
 
             try
             {
-                command.Parameters.Add(new SqlParameter("@employee_id", employeeId));
-                command.Parameters.Add(new SqlParameter("@start_date", startDate));
-                command.Parameters.Add(new SqlParameter("@end_date", endDate));
-                command.Parameters.Add(new SqlParameter("@department_id", departmentId));
-                command.Parameters.Add(new SqlParameter("@job_id", jobId));
+                command.Parameters.Add(new SqlParameter("@id", id));
+                command.Parameters.Add(new SqlParameter("@name", name));
+                command.Parameters.Add(new SqlParameter("@managerId", managerId));
+                command.Parameters.Add(new SqlParameter("@locationId", locationId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -164,22 +160,22 @@ namespace ConnectionDb
         }
 
         // UPDATE: Region
-        public string Update(int employeeId, DateTime startDate, DateTime endDate, int departmentId, int jobId)
+        public string Update(int id, string name, int managerId, int locationId)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
 
             command.Connection = connection;
-            command.CommandText = "UPDATE tbl_job_history SET name = @name, employeeId = @employee_id , startDate = @start_date , endDate = @end_date, departmentId = @department_id, jobId = @job_id WHERE @id = id";
+            command.CommandText = "UPDATE tbl_departments SET name = @name, managerId = @managerId, locationID = @locationId WHERE @id = id";
 
             try
             {
-                command.Parameters.Add(new SqlParameter("@employee_id", employeeId));
-                command.Parameters.Add(new SqlParameter("@start_date", startDate));
-                command.Parameters.Add(new SqlParameter("@end_date", endDate));
-                command.Parameters.Add(new SqlParameter("@department_id", departmentId));
-                command.Parameters.Add(new SqlParameter("@job_id", jobId));
+
+                command.Parameters.Add(new SqlParameter("@id", id));
+                command.Parameters.Add(new SqlParameter("@name", name));
+                command.Parameters.Add(new SqlParameter("@managerId", managerId));
+                command.Parameters.Add(new SqlParameter("@locationId", locationId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -208,18 +204,18 @@ namespace ConnectionDb
         }
 
         // DELETE: Region
-        public string Delete(int employeeId)
+        public string Delete(int id)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
 
             command.Connection = connection;
-            command.CommandText = "DELETE tbl_job_history WHERE @id = employeeId";
+            command.CommandText = "DELETE tbl_departments WHERE @id = id";
 
             try
             {
-                command.Parameters.Add(new SqlParameter("@id", employeeId));
+                command.Parameters.Add(new SqlParameter("@id", id));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -247,6 +243,6 @@ namespace ConnectionDb
 
 
         }
-
     }
 }
+

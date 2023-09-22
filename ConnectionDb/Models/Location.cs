@@ -3,36 +3,38 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace ConnectionDb
+namespace ConnectionDb.Models
 {
-    public class Job
+    public class Location
     {
         public int Id { get; set; }
-        public string Job_Title { get; set; }
-        public decimal Min_Salary { get; set; }
-        public decimal Max_Salary { get; set; }
+        public string Street_Address { get; set; }
+        public string Postal_Code { get; set; }
+        public string City { get; set; }
+        public string State_Province { get; set; }
+        public int Country_Id { get; set; }
 
         public override string ToString()
         {
-            return $"{Id} - {Job_Title} - {Min_Salary} - {Max_Salary}";
+            return $"{Id} - {Street_Address} - {Postal_Code} - {City} - {State_Province} - {Country_Id}";
         }
-
-        // CREATE: Job
-        public string Create(int id, string job_title, decimal min_salary, decimal max_salary)
+        // CREATE: Location
+        public string Insert(Location location)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
-
             command.Connection = connection;
-            command.CommandText = "INSERT INTO tbl_jobs (Id, Job_Title, Min_Salary, Max_Salary) VALUES (@id, @job_title, @min_salary, @max_salary);";
+            command.CommandText = "INSERT INTO tbl_locations VALUES (@id, @street_address, @postal_code, @city, @state_province, @country_id);";
 
             try
             {
-                command.Parameters.Add(new SqlParameter("@id", id));
-                command.Parameters.Add(new SqlParameter("@job_title", job_title));
-                command.Parameters.Add(new SqlParameter("@min_salary", min_salary));
-                command.Parameters.Add(new SqlParameter("@max_salary", max_salary));
+                command.Parameters.Add(new SqlParameter("@id", location.Id));
+                command.Parameters.Add(new SqlParameter("@street_address", location.Street_Address));
+                command.Parameters.Add(new SqlParameter("@postal_code", location.Postal_Code));
+                command.Parameters.Add(new SqlParameter("@city", location.City));
+                command.Parameters.Add(new SqlParameter("@state_province", location.State_Province));
+                command.Parameters.Add(new SqlParameter("@country_id", location.Country_Id));
 
                 connection.Open();
 
@@ -59,17 +61,16 @@ namespace ConnectionDb
             }
         }
 
-        // READ: All Jobs
-        public List<Job> GetAll()
+        // READ: All Locations
+        public List<Location> GetAll()
         {
-            var jobs = new List<Job>();
+            var locations = new List<Location>();
 
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
-
             command.Connection = connection;
-            command.CommandText = "SELECT * FROM tbl_jobs";
+            command.CommandText = "SELECT * FROM tbl_locations";
 
             try
             {
@@ -81,12 +82,14 @@ namespace ConnectionDb
                 {
                     while (reader.Read())
                     {
-                        jobs.Add(new Job
+                        locations.Add(new Location
                         {
                             Id = reader.GetInt32(0),
-                            Job_Title = reader.GetString(1),
-                            Min_Salary = reader.GetInt32(2),
-                            Max_Salary = reader.GetInt32(3)
+                            Street_Address = reader.GetString(1),
+                            Postal_Code = reader.GetString(2),
+                            City = reader.GetString(3),
+                            State_Province = reader.GetString(4),
+                            Country_Id = reader.GetInt32(5)
                         });
                     }
                 }
@@ -96,17 +99,17 @@ namespace ConnectionDb
                 Console.WriteLine($"Error: {ex.Message}");
             }
 
-            return jobs;
+            return locations;
         }
 
-        // READ: Job by ID
-        public Job GetById(int id)
+        // READ: Location by ID
+        public Location GetById(int id)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
             command.Connection = connection;
-            command.CommandText = "SELECT Id, Job_Title, Min_Salary, Max_Salary FROM tbl_jobs WHERE Id = @id;";
+            command.CommandText = "SELECT Id, Street_Address, Postal_Code, City, State_Province, Country_Id FROM tbl_locations WHERE Id = @id;";
             command.Parameters.Add(new SqlParameter("@id", id));
 
             try
@@ -119,20 +122,24 @@ namespace ConnectionDb
                 {
                     reader.Read();
 
-                    int jobId = reader.GetInt32(0);
-                    string jobTitle = reader.GetString(1);
-                    decimal minSalary = reader.GetInt32(2);
-                    decimal maxSalary = reader.GetInt32(3);
+                    int locationId = reader.GetInt32(0);
+                    string streetAddress = reader.GetString(1);
+                    string postalCode = reader.GetString(2);
+                    string city = reader.GetString(3);
+                    string stateProvince = reader.GetString(4);
+                    int countryId = reader.GetInt32(5);
 
-                    Job job = new Job
+                    Location location = new Location
                     {
-                        Id = jobId,
-                        Job_Title = jobTitle,
-                        Min_Salary = minSalary,
-                        Max_Salary = maxSalary
+                        Id = locationId,
+                        Street_Address = streetAddress,
+                        Postal_Code = postalCode,
+                        City = city,
+                        State_Province = stateProvince,
+                        Country_Id = countryId
                     };
 
-                    return job;
+                    return location;
                 }
                 else
                 {
@@ -146,19 +153,20 @@ namespace ConnectionDb
             }
         }
 
-        // UPDATE: Job
-        public string Update(int id, string job_title, decimal min_salary, decimal max_salary)
+        // UPDATE: Location
+        public string Update(Location location)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
-
             command.Connection = connection;
-            command.CommandText = "UPDATE tbl_jobs SET Job_Title = @job_title, Min_Salary = @min_salary, Max_Salary = @max_salary WHERE Id = @id;";
-            command.Parameters.Add(new SqlParameter("@id", id));
-            command.Parameters.Add(new SqlParameter("@job_title", job_title));
-            command.Parameters.Add(new SqlParameter("@min_salary", min_salary));
-            command.Parameters.Add(new SqlParameter("@max_salary", max_salary));
+            command.CommandText = "UPDATE tbl_locations SET Street_Address = @street_address, Postal_Code = @postal_code, City = @city, State_Province = @state_province, Country_Id = @country_id WHERE Id = @id;";
+            command.Parameters.Add(new SqlParameter("@id", location.Id));
+            command.Parameters.Add(new SqlParameter("@street_address", location.Street_Address));
+            command.Parameters.Add(new SqlParameter("@postal_code", location.Postal_Code));
+            command.Parameters.Add(new SqlParameter("@city", location.City));
+            command.Parameters.Add(new SqlParameter("@state_province", location.State_Province));
+            command.Parameters.Add(new SqlParameter("@country_id", location.Country_Id));
 
             try
             {
@@ -187,15 +195,14 @@ namespace ConnectionDb
             }
         }
 
-        // DELETE: Job
+        // DELETE: Location
         public string Delete(int id)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
-
             command.Connection = connection;
-            command.CommandText = "DELETE FROM tbl_jobs WHERE Id = @id;";
+            command.CommandText = "DELETE FROM tbl_locations WHERE Id = @id;";
             command.Parameters.Add(new SqlParameter("@id", id));
 
             try

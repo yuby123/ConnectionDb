@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace ConnectionDb;
-public class Region 
+namespace ConnectionDb.Models;
+public class Region
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -117,18 +117,18 @@ public class Region
 
 
     // INSERT: Region
-    public string Insert(int id, string name)
+    public string Insert(Region region)
     {
         using var connection = Provider.GetConnection();
         using var command = Provider.GetCommand();
 
         command.Connection = connection;
-        command.CommandText = "INSERT INTO tbl_regions (Id, Name) VALUES (@id, @name);";
+        command.CommandText = "INSERT INTO tbl_regions VALUES (@id, @name);";
 
         try
         {
-            command.Parameters.Add(new SqlParameter("@name", name));
-            command.Parameters.Add(new SqlParameter("@id", id));
+            command.Parameters.Add(new SqlParameter("@id", region.Id));
+            command.Parameters.Add(new SqlParameter("@name", region.Name));
 
             connection.Open();
             using var transaction = connection.BeginTransaction();
@@ -156,18 +156,19 @@ public class Region
     }
 
     // UPDATE: Region
-    public string Update(int id, string name)
+    public string Update(Region region)
     {
         using var connection = Provider.GetConnection();
         using var command = Provider.GetCommand();
 
         command.Connection = connection;
-        command.CommandText = "UPDATE tbl_regions SET Name = @name WHERE Id = @id;";
-        command.Parameters.Add(new SqlParameter("@id", id));
-        command.Parameters.Add(new SqlParameter("@name", name));
+        command.CommandText = "UPDATE tbl_regions SET name = @name WHERE @id = id";
 
         try
         {
+            command.Parameters.Add(new SqlParameter("@id", region.Id));
+            command.Parameters.Add(new SqlParameter("@name", region.Name));
+
             connection.Open();
             using var transaction = connection.BeginTransaction();
             try
@@ -191,6 +192,7 @@ public class Region
         {
             return $"Error: {ex.Message}";
         }
+
     }
 
     // DELETE: Region

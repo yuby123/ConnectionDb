@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConnectionDb;
+namespace ConnectionDb.ViewModels;
 public class Soal2
 {
 

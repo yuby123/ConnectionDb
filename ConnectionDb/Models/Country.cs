@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConnectionDB
+namespace ConnectionDb.Models
 {
     public class Country
     {
@@ -119,19 +119,20 @@ namespace ConnectionDB
         }
 
         // INSERT: Region
-        public string Insert(int id, string name)
+        public string Insert(Country country)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
 
             command.Connection = connection;
-            command.CommandText = "INSERT INTO tbl_countries VALUES (@id, @name);";
+            command.CommandText = "INSERT INTO tbl_countries VALUES (@id, @name, @regionsid);";
 
             try
             {
-                command.Parameters.Add(new SqlParameter("@id", id));
-                command.Parameters.Add(new SqlParameter("@name", name));
+                command.Parameters.Add(new SqlParameter("@id", country.Id));
+                command.Parameters.Add(new SqlParameter("@name", country.Name));
+                command.Parameters.Add(new SqlParameter("@regionsid", country.RegionsId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -159,18 +160,19 @@ namespace ConnectionDB
         }
 
         // UPDATE: Region
-        public string Update(int id, string name)
+        public string Update(Country country)
         {
             using var connection = Provider.GetConnection();
             using var command = Provider.GetCommand();
 
             command.Connection = connection;
-            command.CommandText = "UPDATE tbl_countries SET name = @name WHERE @id = id";
+            command.CommandText = "UPDATE tbl_countries SET name = @name, regions_id = @regions_id  WHERE @id = id";
 
             try
             {
-                command.Parameters.Add(new SqlParameter("@id", id));
-                command.Parameters.Add(new SqlParameter("@name", name));
+                command.Parameters.Add(new SqlParameter("@id", country.Id));
+                command.Parameters.Add(new SqlParameter("@name", country.Name));
+                command.Parameters.Add(new SqlParameter("@regions_id", country.RegionsId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
